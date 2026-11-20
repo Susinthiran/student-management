@@ -1,0 +1,23 @@
+{
+  "name": "fullstack-student-management-system",
+  "version": "1.0.0",
+  "description": "Production-ready Full Stack Student Management System with React, Node.js, Express, MySQL & JWT",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "init-db": "cd backend && npm run init-db"
+  },
+  "keywords": [
+    "student-management",
+    "react",
+    "nodejs",
+    "express",
+    "mysql",
+    "jwt",
+    "tailwind"
+  ],
+  "author": "Antigravity Senior Full Stack Web Developer",
+  "license": "ISC"
+}
