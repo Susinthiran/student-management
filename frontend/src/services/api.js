@@ -1,11 +1,18 @@
 import axios from 'axios';
 
+let baseURL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? 'https://student-management-7aut.onrender.com/api'
+    : 'http://localhost:5000/api');
+
+// Auto-correct any typo if old env variable persisted
+if (baseURL.includes('7qut')) {
+  baseURL = baseURL.replace('7qut', '7aut');
+}
+
 const api = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    (import.meta.env.PROD
-      ? 'https://student-management-7aut.onrender.com/api'
-      : 'http://localhost:5000/api'),
+  baseURL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
