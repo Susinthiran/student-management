@@ -215,8 +215,12 @@ const seedInMemoryData = async () => {
 const connectDB = async () => {
   try {
     // 1. Try to initialize MySQL connection
+    const dbHost = process.env.DB_HOST || 'localhost';
+    const isCloud = dbHost !== 'localhost' && dbHost !== '127.0.0.1';
+    const dbName = process.env.DB_NAME || (isCloud ? 'defaultdb' : 'student_management');
+
     const connectionConfig = {
-      host: process.env.DB_HOST || 'localhost',
+      host: dbHost,
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       port: Number(process.env.DB_PORT) || 3306,
@@ -225,11 +229,16 @@ const connectDB = async () => {
       queueLimit: 0
     };
 
-    // First connect without database to ensure database exists
-    const rootConnection = await mysql.createConnection(connectionConfig);
-    const dbName = process.env.DB_NAME || 'student_management';
-    await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
-    await rootConnection.end();
+    if (isCloud || process.env.DB_SSL === 'true') {
+      connectionConfig.ssl = { rejectUnauthorized: false };
+    }
+
+    if (!isCloud) {
+      // First connect without database locally to ensure database exists
+      const rootConnection = await mysql.createConnection(connectionConfig);
+      await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+      await rootConnection.end();
+    }
 
     // Now connect to the database pool
     pool = mysql.createPool({

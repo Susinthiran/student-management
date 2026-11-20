@@ -12,21 +12,37 @@ async function initDatabase() {
   const dbName = process.env.DB_NAME || 'student_management';
 
   try {
+    const isCloud = host !== 'localhost' && host !== '127.0.0.1';
+    const effectiveDb = isCloud ? (process.env.DB_NAME || 'defaultdb') : dbName;
     console.log(`Connecting to MySQL server at ${host}:${port} as user '${user}'...`);
-    const connection = await mysql.createConnection({
+
+    const connConfig = {
       host,
       user,
       password,
       port,
       multipleStatements: true
-    });
+    };
+
+    if (isCloud || process.env.DB_SSL === 'true') {
+      connConfig.ssl = { rejectUnauthorized: false };
+      connConfig.database = effectiveDb;
+    }
+
+    const connection = await mysql.createConnection(connConfig);
 
     console.log('Connected! Executing schema script...');
     const schemaPath = path.join(__dirname, '..', 'schema.sql');
-    const sql = fs.readFileSync(schemaPath, 'utf8');
+    let sql = fs.readFileSync(schemaPath, 'utf8');
+
+    if (isCloud) {
+      // In cloud, replace USE `student_management` with USE `defaultdb` or current DB
+      sql = sql.replace(/CREATE DATABASE[^\n]*;/gi, '')
+               .replace(/USE `student_management`;/gi, `USE \`${effectiveDb}\`;`);
+    }
 
     await connection.query(sql);
-    console.log(`Successfully created/verified database '${dbName}' and populated tables.`);
+    console.log(`Successfully verified database '${effectiveDb}' and populated tables.`);
     
     await connection.end();
     console.log('Database initialization complete! You can now start the application.');
