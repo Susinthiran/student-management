@@ -63,11 +63,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes (Mounted on /api and root fallback)
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+// Route aliases without /api for universal compatibility
+app.use('/auth', authRoutes);
+app.use('/students', studentRoutes);
+app.use('/courses', courseRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 // 404 Route Handler
 app.use((req, res) => {

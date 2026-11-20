@@ -11,6 +11,12 @@ if (baseURL.includes('7qut')) {
   baseURL = baseURL.replace('7qut', '7aut');
 }
 
+// Clean and ensure baseURL ends with /api
+baseURL = baseURL.replace(/\/+$/, '');
+if (!baseURL.endsWith('/api')) {
+  baseURL += '/api';
+}
+
 const api = axios.create({
   baseURL,
   withCredentials: true,
