@@ -13,7 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ isOpen, onClose }) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -24,7 +24,9 @@ export default function Sidebar({ isOpen, onClose }) {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Student List', path: '/students', icon: Users },
-    { name: 'Add Student', path: '/students/add', icon: UserPlus },
+    ...(user?.role === 'admin'
+      ? [{ name: 'Add Student', path: '/students/add', icon: UserPlus }]
+      : []),
     { name: 'Course Management', path: '/courses', icon: BookOpen },
     { name: 'Profile Settings', path: '/profile', icon: Settings },
   ];

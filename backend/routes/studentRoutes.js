@@ -7,16 +7,19 @@ const {
   updateStudent,
   deleteStudent
 } = require('../controllers/studentController');
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 const { validateStudent } = require('../middleware/validateMiddleware');
 
 // All student routes require JWT authentication
 router.use(verifyToken);
 
+// Students and Admins can view records
 router.get('/', getStudents);
 router.get('/:id', getStudentById);
-router.post('/', validateStudent, createStudent);
-router.put('/:id', validateStudent, updateStudent);
-router.delete('/:id', deleteStudent);
+
+// Only Administrators can create, edit, or delete records
+router.post('/', requireAdmin, validateStudent, createStudent);
+router.put('/:id', requireAdmin, validateStudent, updateStudent);
+router.delete('/:id', requireAdmin, deleteStudent);
 
 module.exports = router;

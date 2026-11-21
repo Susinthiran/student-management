@@ -29,6 +29,7 @@ import ActivityFeed from '../components/ActivityFeed';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
 import { dashboardService } from '../services/dashboardService';
+import { useAuth } from '../context/AuthContext';
 
 // Register ChartJS modules
 ChartJS.register(
@@ -42,6 +43,7 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ message: '', type: 'info' });
@@ -173,24 +175,38 @@ export default function Dashboard() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-semibold backdrop-blur-xs mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Admin Overview Panel</span>
+            <span>
+              {user?.role === 'admin' ? 'Admin Management Console' : 'Student Academic Directory'}
+            </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Academic Performance & Records
           </h1>
           <p className="text-sm text-brand-100 mt-1 max-w-xl">
-            Real-time enrollment statistics, student health metrics, and academic course distributions.
+            {user?.role === 'admin'
+              ? 'Real-time enrollment statistics, student health metrics, and academic course distributions.'
+              : 'Browse active degree programs, admissions, and verified student directory records.'}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            to="/students/add"
-            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-brand-700 font-bold text-sm shadow-md hover:bg-brand-50 transition-all hover:scale-102"
-          >
-            <UserPlus className="w-4 h-4 text-brand-600" />
-            <span>Add Student</span>
-          </Link>
+          {user?.role === 'admin' ? (
+            <Link
+              to="/students/add"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-brand-700 font-bold text-sm shadow-md hover:bg-brand-50 transition-all hover:scale-102"
+            >
+              <UserPlus className="w-4 h-4 text-brand-600" />
+              <span>Add Student</span>
+            </Link>
+          ) : (
+            <Link
+              to="/students"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-brand-700 font-bold text-sm shadow-md hover:bg-brand-50 transition-all hover:scale-102"
+            >
+              <Users className="w-4 h-4 text-brand-600" />
+              <span>View Student Directory</span>
+            </Link>
+          )}
           <Link
             to="/courses"
             className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-500/30 hover:bg-brand-500/40 text-white font-semibold text-sm border border-white/20 backdrop-blur-xs transition-all"

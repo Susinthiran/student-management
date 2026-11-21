@@ -17,14 +17,25 @@ const localStore = {
 
 // Seed initial in-memory data
 const seedInMemoryData = async () => {
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedAdminPassword = await bcrypt.hash('admin123', 10);
+  const hashedStudentPassword = await bcrypt.hash('student123', 10);
   localStore.users = [
     {
       id: 1,
       name: 'System Administrator',
       email: 'admin@sms.edu',
-      password: hashedPassword,
+      password: hashedAdminPassword,
       role: 'admin',
+      avatar: null,
+      created_at: new Date(),
+      updated_at: new Date()
+    },
+    {
+      id: 2,
+      name: 'Student Viewer',
+      email: 'student@sms.edu',
+      password: hashedStudentPassword,
+      role: 'student',
       avatar: null,
       created_at: new Date(),
       updated_at: new Date()
@@ -292,19 +303,42 @@ const autoInitializeMySQLTables = async () => {
       }
     }
 
+    // Ensure role column supports 'student'
+    try {
+      await pool.query("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'staff', 'student') DEFAULT 'student'");
+    } catch (e) {
+      // ignore
+    }
+
     // Always ensure the default admin user exists with the valid bcrypt hash for admin123
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedAdminPassword = await bcrypt.hash('admin123', 10);
     const [existingAdmin] = await pool.query('SELECT * FROM users WHERE email = ?', ['admin@sms.edu']);
     if (existingAdmin.length === 0) {
       await pool.query(
         'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
-        ['System Administrator', 'admin@sms.edu', hashedPassword, 'admin']
+        ['System Administrator', 'admin@sms.edu', hashedAdminPassword, 'admin']
       );
       console.log('[Database] Admin user initialized: admin@sms.edu');
     } else {
       await pool.query(
-        'UPDATE users SET password = ? WHERE email = ?',
-        [hashedPassword, 'admin@sms.edu']
+        'UPDATE users SET password = ?, role = "admin" WHERE email = ?',
+        [hashedAdminPassword, 'admin@sms.edu']
+      );
+    }
+
+    // Ensure student user exists with read-only role 'student'
+    const hashedStudentPassword = await bcrypt.hash('student123', 10);
+    const [existingStudent] = await pool.query('SELECT * FROM users WHERE email = ?', ['student@sms.edu']);
+    if (existingStudent.length === 0) {
+      await pool.query(
+        'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+        ['Student Member', 'student@sms.edu', hashedStudentPassword, 'student']
+      );
+      console.log('[Database] Student viewer initialized: student@sms.edu / student123');
+    } else {
+      await pool.query(
+        'UPDATE users SET password = ?, role = "student" WHERE email = ?',
+        [hashedStudentPassword, 'student@sms.edu']
       );
     }
 

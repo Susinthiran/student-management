@@ -41,9 +41,15 @@ export default function Login() {
     }
   };
 
-  const handleFillDemo = () => {
+  const handleFillAdmin = () => {
     setEmail('admin@sms.edu');
     setPassword('admin123');
+    setError('');
+  };
+
+  const handleFillStudent = () => {
+    setEmail('student@sms.edu');
+    setPassword('student123');
     setError('');
   };
 
@@ -142,18 +148,27 @@ export default function Login() {
           </form>
 
           {/* Quick Demo Credentials Autofill Helper */}
-          <div className="mt-6 pt-6 border-t border-slate-100">
+          <div className="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-1">
+              Quick Role-Based Access
+            </p>
             <button
               type="button"
-              onClick={handleFillDemo}
+              onClick={handleFillAdmin}
               className="w-full py-2.5 px-3 rounded-xl border border-brand-200 bg-brand-50/70 text-brand-700 hover:bg-brand-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-              <span>Click to Autofill Demo Credentials (admin@sms.edu)</span>
+              <span>Login as Admin (Full Access: Add / Edit / Delete)</span>
             </button>
-            <div className="mt-3 text-center text-[11px] text-slate-400">
-              Default password: <span className="font-mono font-semibold text-slate-600">admin123</span>
-            </div>
+
+            <button
+              type="button"
+              onClick={handleFillStudent}
+              className="w-full py-2.5 px-3 rounded-xl border border-emerald-200 bg-emerald-50/70 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Login as Student (View Only: Read Student Dates & Courses)</span>
+            </button>
           </div>
         </div>
       </div>

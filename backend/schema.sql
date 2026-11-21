@@ -4,13 +4,13 @@
 CREATE DATABASE IF NOT EXISTS `student_management` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `student_management`;
 
--- 1. Users Table (Admin & Staff)
+-- 1. Users Table (Admin, Staff & Students)
 CREATE TABLE IF NOT EXISTS `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
   `email` VARCHAR(150) NOT NULL UNIQUE,
   `password` VARCHAR(255) NOT NULL,
-  `role` ENUM('admin', 'staff') DEFAULT 'admin',
+  `role` ENUM('admin', 'staff', 'student') DEFAULT 'student',
   `avatar` VARCHAR(255) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -59,9 +59,10 @@ CREATE TABLE IF NOT EXISTS `activity_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Initial Seed Data
--- Default Admin Password: admin123
+-- Default Admin Password: admin123, Student Password: student123
 INSERT IGNORE INTO `users` (`id`, `name`, `email`, `password`, `role`) VALUES
-(1, 'System Administrator', 'admin@sms.edu', '$2a$10$zInfraSrrFnRgHcFvLAgK.GdWaID863TKq33iMwM0MFo5wRRyhPtq', 'admin');
+(1, 'System Administrator', 'admin@sms.edu', '$2a$10$zInfraSrrFnRgHcFvLAgK.GdWaID863TKq33iMwM0MFo5wRRyhPtq', 'admin'),
+(2, 'Student Member', 'student@sms.edu', '$2a$10$RFh9p73a1mVhvorXpVY4n.QWopRjd8KeXxlx40hPiDxi4JGhPcfva', 'student');
 
 -- Sample Courses
 INSERT IGNORE INTO `courses` (`id`, `code`, `name`, `department`, `duration`, `credits`, `description`, `status`) VALUES

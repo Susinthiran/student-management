@@ -12,16 +12,24 @@ import {
   Mail,
   Phone,
   Calendar,
-  BookOpen
+  BookOpen,
+  Eye,
+  X,
+  MapPin,
+  ShieldAlert
 } from 'lucide-react';
 import Pagination from '../components/Pagination';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import { studentService } from '../services/studentService';
 import { courseService } from '../services/courseService';
 
 export default function StudentList() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +46,10 @@ export default function StudentList() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Student Details Modal (for both students & admins)
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
 
   // Toast feedback
   const [toast, setToast] = useState({ message: '', type: 'info' });
@@ -104,6 +116,11 @@ export default function StudentList() {
     setDeleteModalOpen(true);
   };
 
+  const openDetailsModal = (student) => {
+    setSelectedStudent(student);
+    setDetailsModalOpen(true);
+  };
+
   const handleConfirmDelete = async () => {
     if (!studentToDelete) return;
     try {
@@ -158,6 +175,149 @@ export default function StudentList() {
         isDeleting={isDeleting}
       />
 
+      {/* Student Details View Modal */}
+      {detailsModalOpen && selectedStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden animate-scale-up">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-brand-600 to-indigo-600 p-6 text-white relative">
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="absolute top-5 right-5 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center font-bold text-2xl text-white border border-white/30">
+                  {selectedStudent.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold leading-tight">{selectedStudent.full_name}</h3>
+                  <p className="text-brand-100 text-xs font-mono mt-0.5 font-semibold">
+                    ID: {selectedStudent.student_id}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4">
+              {/* Academic & Dates Grid */}
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Admission Date
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mt-0.5">
+                    <Calendar className="w-3.5 h-3.5 text-brand-600" />
+                    <span>
+                      {selectedStudent.admission_date
+                        ? new Date(selectedStudent.admission_date).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Date of Birth (DOB)
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mt-0.5">
+                    <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>
+                      {selectedStudent.dob
+                        ? new Date(selectedStudent.dob).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })
+                        : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Gender
+                  </span>
+                  <span className="text-xs font-semibold text-slate-700 mt-0.5 block">
+                    {selectedStudent.gender || 'Not specified'}
+                  </span>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200/60">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    Enrollment Status
+                  </span>
+                  <span
+                    className={`inline-block mt-0.5 px-2.5 py-0.5 text-[11px] font-bold rounded-full border ${getStatusBadge(
+                      selectedStudent.status
+                    )}`}
+                  >
+                    {selectedStudent.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Course Info */}
+              <div className="p-3.5 rounded-2xl border border-slate-200/80 bg-white">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Enrolled Course Program
+                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <BookOpen className="w-4 h-4 text-brand-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-slate-900 leading-snug">
+                      {selectedStudent.course_name || 'Unassigned'}
+                    </p>
+                    {selectedStudent.course_code && (
+                      <p className="text-xs text-slate-500 font-mono">
+                        Course Code: {selectedStudent.course_code}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center gap-2 text-slate-700 bg-slate-50/70 p-2.5 rounded-xl">
+                  <Mail className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="font-medium">{selectedStudent.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-slate-700 bg-slate-50/70 p-2.5 rounded-xl">
+                  <Phone className="w-4 h-4 text-slate-400 shrink-0" />
+                  <span className="font-medium">{selectedStudent.phone}</span>
+                </div>
+                {selectedStudent.address && (
+                  <div className="flex items-start gap-2 text-slate-700 bg-slate-50/70 p-2.5 rounded-xl">
+                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <span className="font-medium leading-relaxed">{selectedStudent.address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-slate-50 px-6 py-3.5 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs text-slate-400 font-medium">
+                {isAdmin ? 'Admin View Mode' : 'Student Read-Only Portal'}
+              </span>
+              <button
+                onClick={() => setDetailsModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -165,17 +325,26 @@ export default function StudentList() {
             Student Management
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Browse, filter, edit, and organize all registered student records.
+            {isAdmin
+              ? 'Browse, filter, edit, and organize all registered student records.'
+              : 'Student Directory • View admission dates, course info, and personal schedules (Read-Only).'}
           </p>
         </div>
 
-        <Link
-          to="/students/add"
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-500/20 transition-all hover:scale-102 cursor-pointer self-start sm:self-auto"
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Add New Student</span>
-        </Link>
+        {isAdmin ? (
+          <Link
+            to="/students/add"
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-500/20 transition-all hover:scale-102 cursor-pointer self-start sm:self-auto"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Add New Student</span>
+          </Link>
+        ) : (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold self-start sm:self-auto">
+            <Users className="w-4 h-4 text-brand-600" />
+            <span>Student View Mode (Read-Only)</span>
+          </div>
+        )}
       </div>
 
       {/* Search and Filters Bar */}
@@ -249,7 +418,7 @@ export default function StudentList() {
             </div>
             <h3 className="text-base font-bold text-slate-800">No student records found</h3>
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-              No matching records for your search parameters. Try clearing the filters or enroll a new student.
+              No matching records for your search parameters. Try clearing the filters.
             </p>
             <button
               onClick={handleResetFilters}
@@ -348,21 +517,35 @@ export default function StudentList() {
 
                     {/* Action buttons */}
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Link
-                          to={`/students/edit/${student.id}`}
-                          className="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors cursor-pointer"
-                          title="Edit Student Information"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
+                      <div className="flex items-center justify-end gap-1.5">
+                        {/* View Details Button (Available to both student and admin) */}
                         <button
-                          onClick={() => openDeleteModal(student)}
-                          className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                          title="Delete Student"
+                          onClick={() => openDetailsModal(student)}
+                          className="p-2 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors cursor-pointer"
+                          title="View Full Student Details"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Eye className="w-4 h-4" />
                         </button>
+
+                        {/* Admin Only: Edit and Delete */}
+                        {isAdmin && (
+                          <>
+                            <Link
+                              to={`/students/edit/${student.id}`}
+                              className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                              title="Edit Student Information"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Link>
+                            <button
+                              onClick={() => openDeleteModal(student)}
+                              className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                              title="Delete Student"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

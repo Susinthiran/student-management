@@ -6,13 +6,17 @@ import {
   Save,
   Sparkles,
   AlertCircle,
-  GraduationCap
+  GraduationCap,
+  ShieldAlert
 } from 'lucide-react';
 import Toast from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import { studentService } from '../services/studentService';
 import { courseService } from '../services/courseService';
 
 export default function AddStudent() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
@@ -99,6 +103,27 @@ export default function AddStudent() {
       setIsSubmitting(false);
     }
   };
+
+  if (!isAdmin) {
+    return (
+      <div className="max-w-lg mx-auto mt-12 bg-white rounded-3xl p-8 border border-slate-200 text-center space-y-4 shadow-sm">
+        <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mx-auto">
+          <ShieldAlert className="w-8 h-8" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900">Access Restricted</h2>
+        <p className="text-sm text-slate-500 leading-relaxed">
+          Student accounts are granted read-only viewing privileges. Only system administrators can register new students.
+        </p>
+        <Link
+          to="/students"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 text-white font-bold text-xs hover:bg-brand-700 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Return to Student Directory</span>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

@@ -57,11 +57,18 @@ export default function Navbar({ onMenuClick }) {
 
       {/* Right: Actions, System Status & Profile */}
       <div className="flex items-center gap-3 sm:gap-4">
-        {/* System Online Badge */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>System Online</span>
-        </div>
+        {/* Role Badge */}
+        {user?.role === 'admin' ? (
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold">
+            <ShieldCheck className="w-3.5 h-3.5 text-brand-600" />
+            <span>Admin (Full Access)</span>
+          </div>
+        ) : (
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Student (Read-Only Mode)</span>
+          </div>
+        )}
 
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>

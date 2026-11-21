@@ -15,9 +15,13 @@ import CourseModal from '../components/CourseModal';
 import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Toast from '../components/Toast';
+import { useAuth } from '../context/AuthContext';
 import { courseService } from '../services/courseService';
 
 export default function CourseManagement() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -164,17 +168,26 @@ export default function CourseManagement() {
             Course Management
           </h1>
           <p className="text-sm text-slate-500 mt-1">
-            Create, update, and manage academic curriculum degree offerings and student allocations.
+            {isAdmin
+              ? 'Create, update, and manage academic curriculum degree offerings and student allocations.'
+              : 'Browse active course curriculum offerings, credit hours, and duration (Read-Only).'}
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-500/20 transition-all hover:scale-102 cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Course</span>
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={handleOpenAddModal}
+            className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm shadow-md shadow-brand-500/20 transition-all hover:scale-102 cursor-pointer self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Course</span>
+          </button>
+        ) : (
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold self-start sm:self-auto">
+            <GraduationCap className="w-4 h-4 text-brand-600" />
+            <span>Course Catalog (Read-Only)</span>
+          </div>
+        )}
       </div>
 
       {/* Filter / Search Bar */}
@@ -265,22 +278,30 @@ export default function CourseManagement() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-50">
-                  <button
-                    onClick={() => handleOpenEditModal(course)}
-                    className="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Edit className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    onClick={() => handleOpenDeleteModal(course)}
-                    className="py-2 px-3 rounded-xl border border-rose-100 hover:bg-rose-50 text-xs font-semibold text-rose-600 flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                    title="Delete Course"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                {isAdmin ? (
+                  <div className="flex items-center gap-2 pt-2 border-t border-slate-50">
+                    <button
+                      onClick={() => handleOpenEditModal(course)}
+                      className="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Edit className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleOpenDeleteModal(course)}
+                      className="py-2 px-3 rounded-xl border border-rose-100 hover:bg-rose-50 text-xs font-semibold text-rose-600 flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                      title="Delete Course"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-2 border-t border-slate-50 text-center">
+                    <span className="text-[11px] font-medium text-slate-400">
+                      Standard Curriculum Course (Read-Only)
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           ))}
