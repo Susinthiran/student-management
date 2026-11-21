@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -8,6 +8,8 @@ import {
   Settings,
   LogOut,
   GraduationCap,
+  LogIn,
+  ShieldCheck,
   X
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -25,10 +27,12 @@ export default function Sidebar({ isOpen, onClose }) {
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Student List', path: '/students', icon: Users },
     ...(user?.role === 'admin'
-      ? [{ name: 'Add Student', path: '/students/add', icon: UserPlus }]
-      : []),
-    { name: 'Course Management', path: '/courses', icon: BookOpen },
-    { name: 'Profile Settings', path: '/profile', icon: Settings },
+      ? [
+          { name: 'Add Student', path: '/students/add', icon: UserPlus },
+          { name: 'Course Management', path: '/courses', icon: BookOpen },
+          { name: 'Profile Settings', path: '/profile', icon: Settings }
+        ]
+      : [{ name: 'Course Management', path: '/courses', icon: BookOpen }])
   ];
 
   return (
@@ -111,15 +115,25 @@ export default function Sidebar({ isOpen, onClose }) {
           })}
         </div>
 
-        {/* User Quick Info & Logout */}
+        {/* User Quick Info & Action */}
         <div className="p-4 border-t border-slate-100 bg-slate-50/50 m-3 rounded-2xl border border-slate-200/50">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-all cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Sign Out</span>
-          </button>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 transition-all cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Sign Out ({user.name.split(' ')[0]})</span>
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition-all cursor-pointer"
+            >
+              <LogIn className="w-4 h-4 text-brand-600" />
+              <span>Admin Sign In</span>
+            </Link>
+          )}
         </div>
       </aside>
     </>

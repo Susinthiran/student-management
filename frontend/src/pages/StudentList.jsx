@@ -327,7 +327,7 @@ export default function StudentList() {
           <p className="text-sm text-slate-500 mt-1">
             {isAdmin
               ? 'Browse, filter, edit, and organize all registered student records.'
-              : 'Student Directory • View admission dates, course info, and personal schedules (Read-Only).'}
+              : 'Public Student Directory • View admission dates, DOB, courses & schedules (No login needed).'}
           </p>
         </div>
 
@@ -340,9 +340,19 @@ export default function StudentList() {
             <span>Add New Student</span>
           </Link>
         ) : (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold self-start sm:self-auto">
-            <Users className="w-4 h-4 text-brand-600" />
-            <span>Student View Mode (Read-Only)</span>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
+              <Users className="w-4 h-4 text-brand-600" />
+              <span>Public View (Read-Only)</span>
+            </div>
+            {!user && (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 shadow-xs transition-colors"
+              >
+                <span>Admin Sign In</span>
+              </Link>
+            )}
           </div>
         )}
       </div>

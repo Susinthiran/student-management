@@ -176,7 +176,9 @@ export default function Dashboard() {
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white/90 text-xs font-semibold backdrop-blur-xs mb-3">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>
-              {user?.role === 'admin' ? 'Admin Management Console' : 'Student Academic Directory'}
+              {user?.role === 'admin'
+                ? 'Admin Management Console'
+                : 'Public Academic Portal (No Login Required to View)'}
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
@@ -185,11 +187,11 @@ export default function Dashboard() {
           <p className="text-sm text-brand-100 mt-1 max-w-xl">
             {user?.role === 'admin'
               ? 'Real-time enrollment statistics, student health metrics, and academic course distributions.'
-              : 'Browse active degree programs, admissions, and verified student directory records.'}
+              : 'Browse active degree programs, admission dates, and student directory records without logging in.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {user?.role === 'admin' ? (
             <Link
               to="/students/add"
@@ -214,6 +216,14 @@ export default function Dashboard() {
             <BookOpen className="w-4 h-4" />
             <span>Courses</span>
           </Link>
+          {!user && (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl bg-white/20 hover:bg-white/30 text-white font-bold text-sm border border-white/30 backdrop-blur-xs transition-all"
+            >
+              <span>Admin Login</span>
+            </Link>
+          )}
         </div>
       </div>
 

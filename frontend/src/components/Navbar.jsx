@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, User, LogOut, Settings, ChevronDown, ShieldCheck, Calendar } from 'lucide-react';
+import { Menu, Bell, User, LogOut, Settings, ChevronDown, ShieldCheck, Calendar, LogIn, Globe } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -46,7 +46,9 @@ export default function Navbar({ onMenuClick }) {
 
         <div className="hidden sm:block">
           <h2 className="text-base font-bold text-slate-900">
-            Welcome back, {user?.name?.split(' ')[0] || 'Administrator'}! 👋
+            {user
+              ? `Welcome back, ${user?.name?.split(' ')[0] || 'Administrator'}! 👋`
+              : 'EduTrack Pro • Student & Academic Directory'}
           </h2>
           <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
             <Calendar className="w-3.5 h-3.5" />
@@ -64,62 +66,72 @@ export default function Navbar({ onMenuClick }) {
             <span>Admin (Full Access)</span>
           </div>
         ) : (
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Student (Read-Only Mode)</span>
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold">
+            <Globe className="w-3.5 h-3.5 text-brand-600" />
+            <span>Public View (No Login Required)</span>
           </div>
         )}
 
-        {/* Profile Dropdown */}
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-3 p-1.5 sm:px-3 sm:py-2 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-200/80 transition-all cursor-pointer"
+        {/* Profile Dropdown or Admin Sign In Button */}
+        {user ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-3 p-1.5 sm:px-3 sm:py-2 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-200/80 transition-all cursor-pointer"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+              </div>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-bold text-slate-800 leading-tight">
+                  {user?.name || 'Administrator'}
+                </p>
+                <p className="text-xs text-slate-400 capitalize">{user?.role || 'admin'}</p>
+              </div>
+              <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-fade-in z-50">
+                <div className="px-4 py-3 border-b border-slate-100">
+                  <p className="text-xs text-slate-400">Signed in as</p>
+                  <p className="text-sm font-bold text-slate-800 truncate">{user?.email}</p>
+                  <span className="inline-block mt-1 px-2 py-0.5 bg-brand-50 text-brand-700 text-[10px] font-extrabold uppercase tracking-wider rounded-md">
+                    {user?.role || 'Administrator'}
+                  </span>
+                </div>
+
+                <div className="p-1">
+                  <Link
+                    to="/profile"
+                    onClick={() => setDropdownOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
+                  >
+                    <Settings className="w-4 h-4 text-slate-400" />
+                    <span>Profile Settings</span>
+                  </Link>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 text-rose-500" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm transition-all hover:scale-102 cursor-pointer"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-            </div>
-            <div className="hidden md:block text-left">
-              <p className="text-sm font-bold text-slate-800 leading-tight">
-                {user?.name || 'Administrator'}
-              </p>
-              <p className="text-xs text-slate-400 capitalize">{user?.role || 'admin'}</p>
-            </div>
-            <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
-          </button>
-
-          {/* Dropdown Menu */}
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-fade-in z-50">
-              <div className="px-4 py-3 border-b border-slate-100">
-                <p className="text-xs text-slate-400">Signed in as</p>
-                <p className="text-sm font-bold text-slate-800 truncate">{user?.email}</p>
-                <span className="inline-block mt-1 px-2 py-0.5 bg-brand-50 text-brand-700 text-[10px] font-extrabold uppercase tracking-wider rounded-md">
-                  {user?.role || 'Administrator'}
-                </span>
-              </div>
-
-              <div className="p-1">
-                <Link
-                  to="/profile"
-                  onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-xl transition-colors"
-                >
-                  <Settings className="w-4 h-4 text-slate-400" />
-                  <span>Profile Settings</span>
-                </Link>
-
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer"
-                >
-                  <LogOut className="w-4 h-4 text-rose-500" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            <LogIn className="w-4 h-4" />
+            <span>Admin Sign In</span>
+          </Link>
+        )}
       </div>
     </header>
   );

@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
-import { GraduationCap, Mail, Lock, LogIn, AlertCircle, Sparkles } from 'lucide-react';
+import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { GraduationCap, Mail, Lock, LogIn, AlertCircle, Sparkles, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@sms.edu');
+  const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,7 +34,7 @@ export default function Login() {
       }
     } catch (err) {
       setError(
-        err.response?.data?.message || 'Login failed. Please verify your credentials.'
+        err.response?.data?.message || 'Login failed. Please verify your admin credentials.'
       );
     } finally {
       setLoading(false);
@@ -47,12 +47,6 @@ export default function Login() {
     setError('');
   };
 
-  const handleFillStudent = () => {
-    setEmail('student@sms.edu');
-    setPassword('student123');
-    setError('');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Decorative Background Elements */}
@@ -60,26 +54,42 @@ export default function Login() {
       <div className="absolute bottom-0 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
+        {/* Back to Public View Link */}
+        <div className="text-center mb-6">
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/90 text-xs font-semibold backdrop-blur-md transition-all cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Continue as Guest / Student (No Login Required)</span>
+          </Link>
+        </div>
+
         {/* Brand Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 shadow-xl shadow-brand-500/30 text-white mb-4 transform hover:scale-105 transition-transform">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 shadow-xl shadow-brand-500/30 text-white mb-3 transform hover:scale-105 transition-transform">
             <GraduationCap className="w-9 h-9" />
           </div>
           <h2 className="text-3xl font-extrabold text-white tracking-tight">
             EduTrack <span className="text-brand-400">Pro</span>
           </h2>
-          <p className="text-sm text-slate-400 mt-2">
-            Administrator Portal &bull; Student Management System
+          <p className="text-xs text-slate-300 mt-1.5 max-w-xs mx-auto">
+            Administrator Portal • Log in to Add, Edit, or Delete student & course records
           </p>
         </div>
 
         {/* Login Card */}
         <div className="bg-white/95 backdrop-blur-xl py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-white/20">
-          <div className="mb-6">
-            <h3 className="text-xl font-bold text-slate-900">Sign in to your account</h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Enter your authorized admin credentials to access the console
-            </p>
+          <div className="mb-6 flex items-start justify-between">
+            <div>
+              <h3 className="text-xl font-bold text-slate-900">Administrator Sign In</h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Authorized staff login to manage data
+              </p>
+            </div>
+            <div className="p-2 rounded-xl bg-brand-50 text-brand-700">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
           </div>
 
           {error && (
@@ -136,12 +146,12 @@ export default function Login() {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Verifying Session...</span>
+                  <span>Verifying Admin Session...</span>
                 </>
               ) : (
                 <>
                   <LogIn className="w-4 h-4" />
-                  <span>Sign In to Admin Console</span>
+                  <span>Sign In as Administrator</span>
                 </>
               )}
             </button>
@@ -149,25 +159,13 @@ export default function Login() {
 
           {/* Quick Demo Credentials Autofill Helper */}
           <div className="mt-6 pt-5 border-t border-slate-100 space-y-2.5">
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-1">
-              Quick Role-Based Access
-            </p>
             <button
               type="button"
               onClick={handleFillAdmin}
               className="w-full py-2.5 px-3 rounded-xl border border-brand-200 bg-brand-50/70 text-brand-700 hover:bg-brand-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-              <span>Login as Admin (Full Access: Add / Edit / Delete)</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleFillStudent}
-              className="w-full py-2.5 px-3 rounded-xl border border-emerald-200 bg-emerald-50/70 text-emerald-700 hover:bg-emerald-100 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Login as Student (View Only: Read Student Dates & Courses)</span>
+              <span>Autofill Admin Credentials (admin@sms.edu)</span>
             </button>
           </div>
         </div>

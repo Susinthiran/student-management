@@ -12,15 +12,13 @@ export default function DashboardLayout() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <LoadingSpinner size="lg" text="Authenticating user session..." />
+        <LoadingSpinner size="lg" text="Loading EduTrack Pro..." />
       </div>
     );
   }
 
-  // Protect Admin Dashboard: Redirect unauthorized visitors to Login
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  // Public Access: Allow anyone (students, guests, public) to view without login!
+  // Modification operations (add/edit/delete) are restricted to admin in individual views.
 
   return (
     <div className="min-h-screen bg-slate-50 flex">

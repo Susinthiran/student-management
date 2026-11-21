@@ -10,16 +10,13 @@ const {
 const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 const { validateCourse } = require('../middleware/validateMiddleware');
 
-// All course routes require JWT authentication
-router.use(verifyToken);
-
-// Students and Admins can view courses
+// PUBLIC ENDPOINTS: Anyone can view courses without login
 router.get('/', getCourses);
 router.get('/:id', getCourseById);
 
-// Only Administrators can create, edit, or delete courses
-router.post('/', requireAdmin, validateCourse, createCourse);
-router.put('/:id', requireAdmin, validateCourse, updateCourse);
-router.delete('/:id', requireAdmin, deleteCourse);
+// ADMIN PROTECTED: ONLY logged-in Administrator can create, update, or delete courses
+router.post('/', verifyToken, requireAdmin, validateCourse, createCourse);
+router.put('/:id', verifyToken, requireAdmin, validateCourse, updateCourse);
+router.delete('/:id', verifyToken, requireAdmin, deleteCourse);
 
 module.exports = router;

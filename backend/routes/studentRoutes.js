@@ -10,16 +10,13 @@ const {
 const { verifyToken, requireAdmin } = require('../middleware/authMiddleware');
 const { validateStudent } = require('../middleware/validateMiddleware');
 
-// All student routes require JWT authentication
-router.use(verifyToken);
-
-// Students and Admins can view records
+// PUBLIC ENDPOINTS: Anyone (students, visitors, public) can view records without login
 router.get('/', getStudents);
 router.get('/:id', getStudentById);
 
-// Only Administrators can create, edit, or delete records
-router.post('/', requireAdmin, validateStudent, createStudent);
-router.put('/:id', requireAdmin, validateStudent, updateStudent);
-router.delete('/:id', requireAdmin, deleteStudent);
+// ADMIN PROTECTED: ONLY logged-in Administrator can create, update, or delete records
+router.post('/', verifyToken, requireAdmin, validateStudent, createStudent);
+router.put('/:id', verifyToken, requireAdmin, validateStudent, updateStudent);
+router.delete('/:id', verifyToken, requireAdmin, deleteStudent);
 
 module.exports = router;

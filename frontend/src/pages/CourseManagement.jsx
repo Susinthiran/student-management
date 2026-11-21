@@ -170,7 +170,7 @@ export default function CourseManagement() {
           <p className="text-sm text-slate-500 mt-1">
             {isAdmin
               ? 'Create, update, and manage academic curriculum degree offerings and student allocations.'
-              : 'Browse active course curriculum offerings, credit hours, and duration (Read-Only).'}
+              : 'Browse active course curriculum offerings, credit hours, and duration (No login required).'}
           </p>
         </div>
 
@@ -183,9 +183,19 @@ export default function CourseManagement() {
             <span>Add New Course</span>
           </button>
         ) : (
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold self-start sm:self-auto">
-            <GraduationCap className="w-4 h-4 text-brand-600" />
-            <span>Course Catalog (Read-Only)</span>
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold">
+              <GraduationCap className="w-4 h-4 text-brand-600" />
+              <span>Public Catalog (Read-Only)</span>
+            </div>
+            {!user && (
+              <Link
+                to="/login"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-brand-600 text-white text-xs font-bold hover:bg-brand-700 shadow-xs transition-colors"
+              >
+                <span>Admin Sign In</span>
+              </Link>
+            )}
           </div>
         )}
       </div>
